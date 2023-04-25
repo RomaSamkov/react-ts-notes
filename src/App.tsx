@@ -19,6 +19,29 @@ const Button: React.FunctionComponent<
   <button {...rest}>{title ?? children}</button>
 );
 
+function UL<T>({
+  items,
+  render,
+  itemClick,
+}: React.DetailedHTMLProps<
+  React.HTMLAttributes<HTMLUListElement>,
+  HTMLUListElement
+> & {
+  items: T[];
+  render: (item: T) => React.ReactNode;
+  itemClick: (item: T) => void;
+}) {
+  return (
+    <ul>
+      {items.map((item, index) => (
+        <li onClick={() => itemClick(item)} key={index}>
+          {render(item)}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function App() {
   const { todos, addTodo, removeTodo } = useTodos([
     { id: 1, text: "TypeScript", done: false },
@@ -37,12 +60,22 @@ function App() {
       <Heading title="Introduction" />
       <Box>Content</Box>
       <Heading title="Todos:" />
-      {todos.map((todo) => (
+      <UL
+        items={todos}
+        itemClick={(item) => alert(item.id)}
+        render={(todo) => (
+          <>
+            {todo.text}
+            <Button onClick={() => removeTodo(todo.id)}>Remove</Button>
+          </>
+        )}
+      />
+      {/* {todos.map((todo) => (
         <div key={todo.id}>
           {todo.text}
           <Button onClick={() => removeTodo(todo.id)}>Remove</Button>
         </div>
-      ))}
+      ))} */}
       <div>
         <input type="text" ref={newTodoRef} />
         <button onClick={onAddTodo}>Add Todo</button>
