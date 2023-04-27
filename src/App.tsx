@@ -1,10 +1,10 @@
 import React, { useCallback, useRef } from "react";
-import "./App.css";
-import { TodosProvider, useAddTodo, useRemoveTodo, useTodos } from "./useTodos";
+import { Provider, useDispatch, useSelector } from "react-redux";
 
-const Heading = ({ title }: { title: string }) => {
-  return <h2>{title}</h2>;
-};
+import "./App.css";
+import store, { addTodo, removeTodo, selectTodos } from "./store";
+
+const Heading = ({ title }: { title: string }) => <h2>{title}</h2>;
 
 const Box = ({ children }: { children: React.ReactNode }) => {
   return <div>{children}</div>;
@@ -14,9 +14,21 @@ const Button: React.FunctionComponent<
   React.DetailedHTMLProps<
     React.ButtonHTMLAttributes<HTMLButtonElement>,
     HTMLButtonElement
-  > & { title?: string }
-> = ({ title, children, ...rest }) => (
-  <button {...rest}>{title ?? children}</button>
+  > & {
+    title?: string;
+  }
+> = ({ title, children, style, ...rest }) => (
+  <button
+    {...rest}
+    style={{
+      ...style,
+      backgroundColor: "red",
+      color: "white",
+      fontSize: "xx-large",
+    }}
+  >
+    {title ?? children}
+  </button>
 );
 
 function UL<T>({
@@ -43,59 +55,62 @@ function UL<T>({
 }
 
 function App() {
-  const todos = useTodos();
-  const addTodo = useAddTodo();
-  const removeTodo = useRemoveTodo();
-  // const { todos, addTodo, removeTodo } = useTodos([
-  //   { id: 1, text: "TypeScript", done: false },
-  // ]);
+  const todos = useSelector(selectTodos);
+  const dispatch = useDispatch();
+
   const newTodoRef = useRef<HTMLInputElement>(null);
 
   const onAddTodo = useCallback(() => {
     if (newTodoRef.current) {
-      addTodo(newTodoRef.current.value);
+      dispatch(addTodo(newTodoRef.current.value));
       newTodoRef.current.value = "";
     }
-  }, [addTodo]);
+  }, [dispatch]);
 
   return (
     <div>
       <Heading title="Introduction" />
-      <Box>Content</Box>
-      <Heading title="Todos:" />
+      <Box>Hello there</Box>
+
+      <Heading title="Todos" />
       <UL
         items={todos}
         itemClick={(item) => alert(item.id)}
         render={(todo) => (
           <>
             {todo.text}
-            <Button onClick={() => removeTodo(todo.id)}>Remove</Button>
+            <button onClick={() => dispatch(removeTodo(todo.id))}>
+              Remove
+            </button>
           </>
         )}
       />
-      {/* {todos.map((todo) => (
-        <div key={todo.id}>
-          {todo.text}
-          <Button onClick={() => removeTodo(todo.id)}>Remove</Button>
-        </div>
-      ))} */}
       <div>
         <input type="text" ref={newTodoRef} />
-        <button onClick={onAddTodo}>Add Todo</button>
+        <Button onClick={onAddTodo}>Add Todo</Button>
       </div>
     </div>
   );
 }
 
-const AppWrapper = () => {
+const JustTodos = () => {
+  const todos = useSelector(selectTodos);
   return (
-    <TodosProvider initialTodos={[{ id: 1, text: "TypeScript", done: false }]}>
-      <div style={{ display: "grid", gridTemplateColumns: "50% 50%" }}>
-        <App></App>
-        <App></App>
-      </div>
-    </TodosProvider>
+    <UL
+      items={todos}
+      itemClick={() => {}}
+      render={(todo) => <>{todo.text}</>}
+    />
   );
 };
+
+export const AppWrapper = () => (
+  <Provider store={store}>
+    <div style={{ display: "grid", gridTemplateColumns: "50% 50%" }}>
+      <App></App>
+      <JustTodos />
+    </div>
+  </Provider>
+);
 
 export default AppWrapper;
