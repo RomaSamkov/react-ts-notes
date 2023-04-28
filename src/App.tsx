@@ -25,6 +25,11 @@ const Button: React.FunctionComponent<
       backgroundColor: "red",
       color: "white",
       fontSize: "xx-large",
+      borderRadius: "12px",
+      outline: "none",
+      marginLeft: "20px",
+      border: "none",
+      cursor: "pointer",
     }}
   >
     {title ?? children}
@@ -86,7 +91,17 @@ function App() {
         )}
       />
       <div>
-        <input type="text" ref={newTodoRef} />
+        <input
+          type="text"
+          ref={newTodoRef}
+          style={{
+            display: "inline-block",
+            height: "30px",
+            borderRadius: "13px",
+            backgroundColor: "lightgreen",
+            border: "none",
+          }}
+        />
         <Button onClick={onAddTodo}>Add Todo</Button>
       </div>
     </div>
